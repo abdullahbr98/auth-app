@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
+import AccountClass from "../../classes/AccountClass.js";
+import { Link } from "react-router-dom";
 import "./login.css";
 import {
     MDBBtn,
@@ -10,9 +12,63 @@ import {
     MDBInput,
     MDBIcon,
 } from "mdb-react-ui-kit";
-import { Link } from "react-router-dom";
-
 function Login() {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, seterror] = useState(false);
+    const [val, setVal] = useState({
+        v1: 1,
+        v2: 2,
+        v3: 3
+    });
+
+    const loginSubmit = async () => {
+
+        // debugger;
+        // let changeValue = 6;
+        // let {v3} = val;
+        // setVal({v3:"67"});
+        // console.log("v1:",val);
+        let newVal = {...val,v4:"411"};
+        setVal(newVal);
+        console.log(val);
+
+
+        // debugger;
+        console.log("login");
+        console.log("email:", email, "password:", password);
+        let accountArray = await localStorage?.getItem("accounts");
+        if (accountArray !== "") {
+            let parsedInfo = await JSON.parse(accountArray);
+
+            let catcher = 0;
+            if (parsedInfo !== "") {
+                for (let i = 0; i < parsedInfo.length; i++) {
+                    if (
+                        email == parsedInfo[i].emailAddress &&
+                        password == parsedInfo[i].password
+                    ) {
+                        console.log("logged in");
+                        catcher = parsedInfo[i];
+                        break;
+                    }
+                }
+                if (catcher !== 0) {
+                    console.log("catcher:", catcher);
+                    let stringifyValue = JSON.stringify(catcher);
+                    localStorage.setItem("isLoggedIn", stringifyValue);
+                    window.location.replace("/home");
+                } else {
+                    console.log("wrong password");
+                    seterror(true);
+                }
+            }
+        } else {
+            console.log("wrong password");
+            seterror(true);
+        }
+    };
+
     return (
         <MDBContainer fluid>
             <MDBRow className="d-flex justify-content-center align-items-center h-100">
@@ -36,6 +92,9 @@ function Login() {
                                 id="formControlLg"
                                 type="email"
                                 size="lg"
+                                onChange={(e) => {
+                                    setEmail(e.target.value);
+                                }}
                             />
                             <MDBInput
                                 wrapperClass="mb-4 mx-5 w-100"
@@ -44,8 +103,15 @@ function Login() {
                                 id="formControlLg"
                                 type="password"
                                 size="lg"
+                                onChange={(e) => {
+                                    setPassword(e.target.value);
+                                }}
                             />
-
+                            {error ? (
+                                <p className="small mb-3 pb-lg-2 text-danger">
+                                    Wrong password or email.
+                                </p>
+                            ) : null}
                             <p className="small mb-3 pb-lg-2">
                                 <Link className="text-white-50" href="#!">
                                     Forgot password?
@@ -56,6 +122,9 @@ function Login() {
                                 className="mx-2 px-5"
                                 color="white"
                                 size="lg"
+                                onClick={() => {
+                                    loginSubmit();
+                                }}
                             >
                                 Login
                             </MDBBtn>
